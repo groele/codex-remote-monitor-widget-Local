@@ -24,4 +24,17 @@ describe("quota normalization", () => {
     expect(quota?.longWindow?.remainingPercent).toBe(74);
     expect(quota?.credits?.balance).toBe("10");
   });
+
+  it("handles snake_case and weekly window payloads correctly", () => {
+    const quota = normalizeCodexQuota({
+      rate_limits: {
+        primary_window: { used_percent: 20, window_duration_mins: 300, reset_at: 1737600000 },
+        weekly: { remaining_percent: 85, duration_mins: 10080, resets_at: 1737600000 }
+      }
+    });
+
+    expect(quota?.shortWindow?.remainingPercent).toBe(80);
+    expect(quota?.longWindow?.label).toBe("周限额");
+    expect(quota?.longWindow?.remainingPercent).toBe(85);
+  });
 });

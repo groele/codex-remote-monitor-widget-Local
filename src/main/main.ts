@@ -79,9 +79,9 @@ function updateTrayToolTip(snapshot: WidgetSnapshot): void {
 }
 
 function createTray(): void {
-  const image = nativeImage.createFromDataURL(
-    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGElEQVR42mP8z8Dwn4ECwESJ5lEDRgYABcMCBPlm3VwAAAAASUVORK5CYII="
-  );
+  const iconDataUrl =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAUklEQVR4nO3RsQkAIAwFUUdwZXeycTptbCUBI/HDBQ7s8oiljtYzK/sxkwIA4AyIHl3A7ZkBAAAAQB8QNXoA72mNBVYA/ICgPxcGPAoAgH8AaS2K+AlXlFiGngAAAABJRU5ErkJggg==";
+  const image = nativeImage.createFromDataURL(iconDataUrl);
   tray = new Tray(image);
   tray.setToolTip("Codex Monitor Widget");
   tray.setContextMenu(
