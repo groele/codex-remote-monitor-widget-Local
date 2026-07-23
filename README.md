@@ -6,7 +6,8 @@
 
 ## 🇨🇳 Codex Remote & Local Monitor Widget (v1.1.0) - 中文说明
 
-> **项目说明**：本项目**基于原始 Codex Monitor Widget 开发**，并在其基础上进行了**深度重构与重点本地化检测增强**。现在无需复杂的远程 SSH 连接配置，即可全自动检测并实时监控**本地电脑 (Windows) 的 CPU、RAM 内存与 NVIDIA GPU 显卡**运行状态，结合优雅的现代毛玻璃悬浮挂件 UI，打造极致的桌面监控体验。
+> **项目致谢与说明**：本项目**基于开源项目 [Xieyinmei/codex-remote-monitor-widget](https://github.com/Xieyinmei/codex-remote-monitor-widget) 开发**，在此向原作者表示诚挚的感谢！
+> 本在原项目的基础上进行了**深度重构与重点本地化检测增强**。现在无需复杂的远程 SSH 连接配置，即可全自动检测并实时监控**本地电脑 (Windows) 的 CPU、RAM 内存与 NVIDIA GPU 显卡**运行状态，结合优雅的现代毛玻璃悬浮挂件 UI，打造极致的桌面监控体验。
 
 ### ✨ 核心特性与本地化检测增强
 
@@ -70,7 +71,8 @@ npm run package:installer
 
 ## 🇬🇧 Codex Remote & Local Monitor Widget (v1.1.0) - English Guide
 
-> **Project Notice**: This project is **developed based on the original Codex Monitor Widget** with comprehensive refactoring and **major enhancements for local hardware metrics detection**. Without requiring complex remote SSH setup, it automatically monitors **local Windows PC metrics (CPU, RAM, and NVIDIA GPU)** in real-time with an elegant frosted glass desktop overlay interface.
+> **Acknowledgements & Project Notice**: This project is **developed based on the open-source repository [Xieyinmei/codex-remote-monitor-widget](https://github.com/Xieyinmei/codex-remote-monitor-widget)**. We express our sincere gratitude to the original author for their great work!
+> Building upon the original repository, this project introduces comprehensive refactoring and **major enhancements for local hardware metrics detection**. Without requiring complex remote SSH setup, it automatically monitors **local Windows PC metrics (CPU, RAM, and NVIDIA GPU)** in real-time with an elegant frosted glass desktop overlay interface.
 
 ### ✨ Key Features & Enhancements
 
@@ -129,6 +131,15 @@ npm run test
 # 4. Package Windows NSIS Installer (.exe)
 npm run package:installer
 ```
+
+---
+
+## 🙏 致谢 / Acknowledgements
+
+特别感谢原项目及其作者的开源贡献！本项目基于以下开源项目衍生与二次开发：
+- **原始开源项目 / Original Project**: [Xieyinmei/codex-remote-monitor-widget](https://github.com/Xieyinmei/codex-remote-monitor-widget)
+
+Special thanks to the original project and author for their open-source contributions! This project is derived and enhanced from the original repository above.
 
 ---
 
