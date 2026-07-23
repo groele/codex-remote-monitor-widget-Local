@@ -5,10 +5,12 @@ import {
   Maximize2,
   Minimize2,
   MonitorCog,
+  Moon,
   Pin,
   PinOff,
   RefreshCw,
   Settings,
+  Sun,
   X,
   Zap
 } from "lucide-react";
@@ -72,6 +74,15 @@ export function App() {
     setSettings({ ...settings, compactMode: isCompact });
   }
 
+  async function toggleTheme() {
+    if (!settings) {
+      return;
+    }
+    const nextTheme = settings.theme === "light" ? "dark" : "light";
+    const saved = await window.monitorWidget.saveSettings({ ...settings, theme: nextTheme });
+    setSettings(saved);
+  }
+
   async function saveSettings(event: FormEvent) {
     event.preventDefault();
     if (!settings) {
@@ -85,9 +96,10 @@ export function App() {
   }
 
   const isCompact = settings?.compactMode ?? false;
+  const themeClass = settings?.theme ?? "dark";
 
   return (
-    <main className="shell">
+    <main className={`shell ${themeClass}`}>
       <section className="widget">
         {isCompact ? (
           /* 迷你精简横条视图 (Compact View) */
@@ -133,6 +145,13 @@ export function App() {
             </div>
 
             <div className="actions">
+              <button
+                title={settings?.theme === "light" ? "切换为暗色毛玻璃" : "切换为亮色毛玻璃"}
+                className="icon-button"
+                onClick={toggleTheme}
+              >
+                {settings?.theme === "light" ? <Moon size={14} /> : <Sun size={14} />}
+              </button>
               <button title="展开全量卡片模式" className="icon-button" onClick={toggleCompact}>
                 <Maximize2 size={14} />
               </button>
@@ -163,6 +182,13 @@ export function App() {
                 <span className="updated">{formatTime(snapshot.updatedAt)}</span>
               </div>
               <div className="actions">
+                <button
+                  title={settings?.theme === "light" ? "切换为暗色毛玻璃" : "切换为亮色毛玻璃"}
+                  className="icon-button"
+                  onClick={toggleTheme}
+                >
+                  {settings?.theme === "light" ? <Moon size={14} /> : <Sun size={14} />}
+                </button>
                 <button
                   title="缩小为迷你横条模式"
                   className="icon-button"
@@ -267,6 +293,19 @@ export function App() {
                   setSettings({ ...settings, refreshIntervalSec: Number(event.target.value) })
                 }
               />
+            </label>
+            <label className="toggle-label">
+              <span>亮色水晶毛玻璃</span>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={settings.theme === "light"}
+                  onChange={(event) =>
+                    setSettings({ ...settings, theme: event.target.checked ? "light" : "dark" })
+                  }
+                />
+                <span className="slider" />
+              </label>
             </label>
             <label className="toggle-label">
               <span>缩小为迷你模式</span>
