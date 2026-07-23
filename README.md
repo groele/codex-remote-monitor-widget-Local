@@ -27,7 +27,7 @@
 
 #### 🧲 3. 屏幕边缘检测与磁力吸附算法
 - **自由移动**：小组件支持在屏幕任意位置自由摆放。
-- **20px 磁力吸附**：靠近屏幕左、右、上、下边缘小于 20px 时，自动强力平滑吸附到边缘。
+- **动态 10% 磁力吸附**：当拖拽靠近屏幕左、右、上、下边缘距离小于屏幕尺寸的 10% 时，自动强力平滑吸附到边缘。
 - **防越界保护 (Clamp)**：严格限制窗口不能被拖出显示器可视工作区外，防止窗口丢失。
 
 #### 🎨 4. 极致毛玻璃质感 UI
@@ -92,7 +92,7 @@ npm run package:installer
 
 #### 🧲 3. Screen Edge Snapping & Boundary Clamping
 - **Free Dragging**: Drag the widget anywhere across multiple monitors.
-- **20px Magnetic Snapping**: Smoothly snaps to screen edges when dragged within 20px threshold.
+- **10% Dynamic Magnetic Snapping**: Smoothly snaps to screen edges when dragged within 10% threshold of screen resolution.
 - **Out-of-Bounds Clamping**: Prevents accidental dragging outside the screen work area.
 
 #### 🎨 4. Frosted Glassmorphism UI

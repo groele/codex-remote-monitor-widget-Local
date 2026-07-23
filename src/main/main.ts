@@ -175,16 +175,19 @@ function handleWindowMove(): void {
   let newX = bounds.x;
   let newY = bounds.y;
 
-  // 1. Magnetic Edge Snapping (边缘磁力吸附)
-  if (Math.abs(newX - workArea.x) < SNAP_THRESHOLD) {
+  // 1. Dynamic 10% Screen Edge Snapping (动态屏幕 10% 边缘磁力吸附)
+  const snapThresholdX = Math.round(workArea.width * 0.10);
+  const snapThresholdY = Math.round(workArea.height * 0.10);
+
+  if (Math.abs(newX - workArea.x) < snapThresholdX) {
     newX = workArea.x;
-  } else if (Math.abs((newX + bounds.width) - (workArea.x + workArea.width)) < SNAP_THRESHOLD) {
+  } else if (Math.abs((newX + bounds.width) - (workArea.x + workArea.width)) < snapThresholdX) {
     newX = workArea.x + workArea.width - bounds.width;
   }
 
-  if (Math.abs(newY - workArea.y) < SNAP_THRESHOLD) {
+  if (Math.abs(newY - workArea.y) < snapThresholdY) {
     newY = workArea.y;
-  } else if (Math.abs((newY + bounds.height) - (workArea.y + workArea.height)) < SNAP_THRESHOLD) {
+  } else if (Math.abs((newY + bounds.height) - (workArea.y + workArea.height)) < snapThresholdY) {
     newY = workArea.y + workArea.height - bounds.height;
   }
 
