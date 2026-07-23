@@ -19,6 +19,10 @@ async function createWindow(): Promise<void> {
   const settings = await settingsService.read();
   const bounds = settings.windowBounds ?? { width: 430, height: 360 };
 
+  const iconDataUrl =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAa0lEQVR4nGNgGAVIQGBn43964AG1HKcjRh0wKB1ALTD0HcAvrkUWHnUAzR1gcnnmqAPo5wCQZdgwPsfQNREOmANwhQwID58QoBQMXQfgw8RYgg+POmBoOYCaiW9oOYCaiW9oPoAWePA5gJ6OwGr5iAUAjbOQIrOjeawAAAAASUVORK5CYII=";
+  const appIcon = nativeImage.createFromDataURL(iconDataUrl);
+
   mainWindow = new BrowserWindow({
     width: bounds.width,
     height: bounds.height,
@@ -32,6 +36,7 @@ async function createWindow(): Promise<void> {
     skipTaskbar: true,
     resizable: true,
     show: false,
+    icon: appIcon,
     backgroundColor: "#00000000",
     webPreferences: {
       preload: path.join(__dirname, "../preload/preload.js"),
@@ -81,7 +86,7 @@ function updateTrayToolTip(snapshot: WidgetSnapshot): void {
 
 function createTray(): void {
   const iconDataUrl =
-    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAUklEQVR4nO3RsQkAIAwFUUdwZXeycTptbCUBI/HDBQ7s8oiljtYzK/sxkwIA4AyIHl3A7ZkBAAAAQB8QNXoA72mNBVYA/ICgPxcGPAoAgH8AaS2K+AlXlFiGngAAAABJRU5ErkJggg==";
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAa0lEQVR4nGNgGAVIQGBn43964AG1HKcjRh0wKB1ALTD0HcAvrkUWHnUAzR1gcnnmqAPo5wCQZdgwPsfQNREOmANwhQwID58QoBQMXQfgw8RYgg+POmBoOYCaiW9oOYCaiW9oPoAWePA5gJ6OwGr5iAUAjbOQIrOjeawAAAAASUVORK5CYII=";
   const image = nativeImage.createFromDataURL(iconDataUrl);
   tray = new Tray(image);
   tray.setToolTip("Codex Monitor Widget");

@@ -1,7 +1,7 @@
 {
   "name": "codex-remote-monitor-widget",
-  "version": "0.1.0",
-  "description": "A Windows desktop widget for Codex quota and remote Linux CPU/GPU monitoring.",
+  "version": "1.0.0",
+  "description": "A Windows desktop widget for Codex quota and local CPU/GPU/RAM monitoring.",
   "license": "MIT",
   "author": "",
   "keywords": [
@@ -66,6 +66,7 @@
     },
     "win": {
       "target": "nsis",
+      "icon": "build/icon.png",
       "signAndEditExecutable": false
     }
   }
