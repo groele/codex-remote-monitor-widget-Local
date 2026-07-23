@@ -1,13 +1,15 @@
 # Codex Remote & Local Monitor Widget (v1.1.0)
 
+> **Original Project / 原始开源项目**: [Xieyinmei/codex-remote-monitor-widget](https://github.com/Xieyinmei/codex-remote-monitor-widget)
+
 [中文 README](#-codex-remote--local-monitor-widget-v110---中文说明) | [English README](#-codex-remote--local-monitor-widget-v110---english-guide)
 
 ---
 
 ## 🇨🇳 Codex Remote & Local Monitor Widget (v1.1.0) - 中文说明
 
-> **项目致谢与说明**：本项目**基于开源项目 [Xieyinmei/codex-remote-monitor-widget](https://github.com/Xieyinmei/codex-remote-monitor-widget) 开发**，在此向原作者表示诚挚的感谢！
-> 本在原项目的基础上进行了**深度重构与重点本地化检测增强**。现在无需复杂的远程 SSH 连接配置，即可全自动检测并实时监控**本地电脑 (Windows) 的 CPU、RAM 内存与 NVIDIA GPU 显卡**运行状态，结合优雅的现代毛玻璃悬浮挂件 UI，打造极致的桌面监控体验。
+> **开源致谢与说明**：本项目衍生并重构自开源项目 [Xieyinmei/codex-remote-monitor-widget](https://github.com/Xieyinmei/codex-remote-monitor-widget)。在此向原作者 [@Xieyinmei](https://github.com/Xieyinmei) 表示诚挚的感谢！
+> 本项目在原项目的基础上进行了**深度架构重构与重点本地化检测增强**。现在无需复杂的远程 SSH 连接配置，即可全自动检测并实时监控**本地电脑 (Windows) 的 CPU、RAM 内存与 NVIDIA GPU 显卡**运行状态，结合优雅的现代毛玻璃悬浮挂件 UI，打造极致的桌面监控体验。
 
 ### ✨ 核心特性与本地化检测增强
 
@@ -71,8 +73,8 @@ npm run package:installer
 
 ## 🇬🇧 Codex Remote & Local Monitor Widget (v1.1.0) - English Guide
 
-> **Acknowledgements & Project Notice**: This project is **developed based on the open-source repository [Xieyinmei/codex-remote-monitor-widget](https://github.com/Xieyinmei/codex-remote-monitor-widget)**. We express our sincere gratitude to the original author for their great work!
-> Building upon the original repository, this project introduces comprehensive refactoring and **major enhancements for local hardware metrics detection**. Without requiring complex remote SSH setup, it automatically monitors **local Windows PC metrics (CPU, RAM, and NVIDIA GPU)** in real-time with an elegant frosted glass desktop overlay interface.
+> **Acknowledgements & Project Notice**: This project is derived and enhanced from the open-source repository [Xieyinmei/codex-remote-monitor-widget](https://github.com/Xieyinmei/codex-remote-monitor-widget). We express our sincere gratitude to the original author [@Xieyinmei](https://github.com/Xieyinmei) for their great work!
+> Building upon the original repository, this project introduces comprehensive architectural refactoring and **major enhancements for local hardware metrics detection**. Without requiring complex remote SSH setup, it automatically monitors **local Windows PC metrics (CPU, RAM, and NVIDIA GPU)** in real-time with an elegant frosted glass desktop overlay interface.
 
 ### ✨ Key Features & Enhancements
 
@@ -134,12 +136,13 @@ npm run package:installer
 
 ---
 
-## 🙏 致谢 / Acknowledgements
+## 🙏 开源致谢与引用 / Acknowledgements & Credits
 
-特别感谢原项目及其作者的开源贡献！本项目基于以下开源项目衍生与二次开发：
-- **原始开源项目 / Original Project**: [Xieyinmei/codex-remote-monitor-widget](https://github.com/Xieyinmei/codex-remote-monitor-widget)
+本项目遵循 MIT 开源协议，基于以下优秀的开源项目衍生开发，感谢原作者的无私贡献：
+- **原始开源项目 (Original Project)**: [Xieyinmei/codex-remote-monitor-widget](https://github.com/Xieyinmei/codex-remote-monitor-widget)
+- **原作者 GitHub (Original Author)**: [@Xieyinmei](https://github.com/Xieyinmei)
 
-Special thanks to the original project and author for their open-source contributions! This project is derived and enhanced from the original repository above.
+This project is licensed under the MIT License and is derived from the open-source repository above. Special thanks to the original author for their open-source contributions.
 
 ---
 
