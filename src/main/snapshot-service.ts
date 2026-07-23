@@ -55,7 +55,17 @@ export class SnapshotService {
       const codex =
         codexResult.status === "fulfilled" ? codexResult.value : this.codexService.getCachedQuota();
       if (codexResult.status === "rejected") {
-        errors.push(`Codex: ${codexResult.reason instanceof Error ? codexResult.reason.message : codexResult.reason}`);
+        const rawErr = codexResult.reason instanceof Error ? codexResult.reason.message : String(codexResult.reason);
+        const friendlyErr = rawErr.includes("wham/usage") || rawErr.includes("failed to fetch")
+          ? "Codex: 网络连接请求异常，重试中..."
+          : `Codex: ${rawErr}`;
+        errors.push(friendlyErr);
+      } else if (this.codexService.getLastError()) {
+        const rawErr = this.codexService.getLastError()!;
+        const friendlyErr = rawErr.includes("wham/usage") || rawErr.includes("failed to fetch")
+          ? "Codex: 网络连接请求异常，重试中..."
+          : `Codex: ${rawErr}`;
+        errors.push(friendlyErr);
       }
 
       const localSnapshot = localResult.status === "fulfilled" ? localResult.value : this.snapshot.local;

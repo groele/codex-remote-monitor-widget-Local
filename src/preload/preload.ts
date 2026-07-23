@@ -11,8 +11,6 @@ const api: RendererApi = {
   closeWindow: () => ipcRenderer.invoke("window:close"),
   toggleAlwaysOnTop: () => ipcRenderer.invoke("window:toggle-always-on-top"),
   toggleCompactMode: () => ipcRenderer.invoke("window:toggle-compact-mode"),
-  toggleClickThrough: () => ipcRenderer.invoke("window:toggle-click-through"),
-  setIgnoreMouseEvents: (ignore: boolean) => ipcRenderer.invoke("window:set-ignore-mouse-events", ignore),
   onSnapshotUpdated: (callback: (snapshot: WidgetSnapshot) => void) => {
     const listener = (_event: Electron.IpcRendererEvent, snapshot: WidgetSnapshot) => callback(snapshot);
     ipcRenderer.on("snapshot:updated", listener);

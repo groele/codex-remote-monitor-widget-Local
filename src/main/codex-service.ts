@@ -32,11 +32,20 @@ export class CodexService extends EventEmitter {
   private lastError: string | null = null;
 
   async readQuota(): Promise<CodexQuotaSnapshot | null> {
-    await this.ensureStarted();
-    const response = (await this.request("account/rateLimits/read")) as RateLimitsResponsePayload;
-    this.lastSnapshot = normalizeCodexQuota(response);
-    this.lastError = null;
-    return this.lastSnapshot;
+    try {
+      await this.ensureStarted();
+      const response = (await this.request("account/rateLimits/read")) as RateLimitsResponsePayload;
+      const parsed = normalizeCodexQuota(response);
+      if (parsed) {
+        this.lastSnapshot = parsed;
+        this.lastError = null;
+      }
+      return this.lastSnapshot;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      this.lastError = msg;
+      return this.lastSnapshot;
+    }
   }
 
   getCachedQuota(): CodexQuotaSnapshot | null {

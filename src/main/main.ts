@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu, nativeImage, Tray } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, Tray } from "electron";
 import path from "node:path";
 import type { Settings, WidgetSnapshot } from "../shared/types";
 import { CodexService } from "./codex-service";
@@ -9,6 +9,7 @@ import { SnapshotService } from "./snapshot-service";
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let isQuitting = false;
+const SNAP_THRESHOLD = 20;
 
 const settingsService = new SettingsService();
 const localMetricsService = new LocalMetricsService();
@@ -48,7 +49,6 @@ async function createWindow(): Promise<void> {
 
   mainWindow.setAlwaysOnTop(settings.alwaysOnTop, "floating");
   applyWindowMode(settings.compactMode);
-  applyClickThrough(settings.clickThrough);
   mainWindow.once("ready-to-show", () => mainWindow?.show());
   mainWindow.on("close", (event) => {
     if (!isQuitting) {
@@ -56,7 +56,7 @@ async function createWindow(): Promise<void> {
       mainWindow?.hide();
     }
   });
-  mainWindow.on("move", () => saveWindowBoundsSoon());
+  mainWindow.on("move", () => handleWindowMove());
   mainWindow.on("resize", () => saveWindowBoundsSoon());
 
   snapshotService.setWindow(mainWindow);
@@ -163,6 +163,46 @@ function saveWindowBoundsSoon(): void {
   }, 300);
 }
 
+function handleWindowMove(): void {
+  if (!mainWindow) {
+    return;
+  }
+  const bounds = mainWindow.getBounds();
+  const display = screen.getDisplayMatching(bounds);
+  const workArea = display.workArea;
+
+  let newX = bounds.x;
+  let newY = bounds.y;
+
+  // 1. Magnetic Edge Snapping (边缘磁力吸附)
+  if (Math.abs(newX - workArea.x) < SNAP_THRESHOLD) {
+    newX = workArea.x;
+  } else if (Math.abs((newX + bounds.width) - (workArea.x + workArea.width)) < SNAP_THRESHOLD) {
+    newX = workArea.x + workArea.width - bounds.width;
+  }
+
+  if (Math.abs(newY - workArea.y) < SNAP_THRESHOLD) {
+    newY = workArea.y;
+  } else if (Math.abs((newY + bounds.height) - (workArea.y + workArea.height)) < SNAP_THRESHOLD) {
+    newY = workArea.y + workArea.height - bounds.height;
+  }
+
+  // 2. Prevent dragging out of screen bounds (防止被拖到屏幕外)
+  const minX = workArea.x;
+  const maxX = workArea.x + workArea.width - bounds.width;
+  const minY = workArea.y;
+  const maxY = workArea.y + workArea.height - bounds.height;
+
+  newX = Math.max(minX, Math.min(maxX, newX));
+  newY = Math.max(minY, Math.min(maxY, newY));
+
+  if (newX !== bounds.x || newY !== bounds.y) {
+    mainWindow.setPosition(newX, newY);
+  }
+
+  saveWindowBoundsSoon();
+}
+
 function applyWindowMode(compactMode: boolean): void {
   if (!mainWindow) {
     return;
@@ -176,18 +216,6 @@ function applyWindowMode(compactMode: boolean): void {
   }
 }
 
-function applyClickThrough(clickThrough: boolean): void {
-  if (!mainWindow) {
-    return;
-  }
-  if (clickThrough) {
-    mainWindow.setAlwaysOnTop(true, "screen-saver");
-    mainWindow.setIgnoreMouseEvents(true, { forward: true });
-  } else {
-    mainWindow.setIgnoreMouseEvents(false);
-  }
-}
-
 function registerIpc(): void {
   ipcMain.handle("settings:read", async () => settingsService.read());
   ipcMain.handle("settings:open", async () => openSettings());
@@ -197,7 +225,6 @@ function registerIpc(): void {
     if (mainWindow) {
       mainWindow.setAlwaysOnTop(saved.alwaysOnTop, "floating");
       applyWindowMode(saved.compactMode);
-      applyClickThrough(saved.clickThrough);
     }
     await snapshotService.restartTimer();
     void snapshotService.refresh();
@@ -219,22 +246,6 @@ function registerIpc(): void {
     const updated = await settingsService.save({ ...current, compactMode: !current.compactMode });
     applyWindowMode(updated.compactMode);
     return updated.compactMode;
-  });
-  ipcMain.handle("window:toggle-click-through", async () => {
-    const current = await settingsService.read();
-    const updated = await settingsService.save({ ...current, clickThrough: !current.clickThrough });
-    applyClickThrough(updated.clickThrough);
-    return updated.clickThrough;
-  });
-  ipcMain.handle("window:set-ignore-mouse-events", async (_event, ignore: boolean) => {
-    if (!mainWindow) {
-      return;
-    }
-    if (ignore) {
-      mainWindow.setIgnoreMouseEvents(true, { forward: true });
-    } else {
-      mainWindow.setIgnoreMouseEvents(false);
-    }
   });
   ipcMain.handle("snapshot:read", async () => snapshotService.getSnapshot());
   ipcMain.handle("snapshot:refresh", async () => snapshotService.refresh());

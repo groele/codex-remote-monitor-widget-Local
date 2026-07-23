@@ -6,7 +6,6 @@ import {
   Minimize2,
   MonitorCog,
   Moon,
-  MousePointerClick,
   Pin,
   PinOff,
   RefreshCw,
@@ -75,14 +74,6 @@ export function App() {
     setSettings({ ...settings, compactMode: isCompact });
   }
 
-  async function toggleClickThrough() {
-    if (!settings) {
-      return;
-    }
-    const isClickThrough = await window.monitorWidget.toggleClickThrough();
-    setSettings({ ...settings, clickThrough: isClickThrough });
-  }
-
   async function toggleTheme() {
     if (!settings) {
       return;
@@ -112,18 +103,6 @@ export function App() {
     setShowSettings(false);
     setConnectionMessage("设置已保存");
     void refresh();
-  }
-
-  function handleMouseEnterActions() {
-    if (settings?.clickThrough) {
-      void window.monitorWidget.setIgnoreMouseEvents(false);
-    }
-  }
-
-  function handleMouseLeaveActions() {
-    if (settings?.clickThrough) {
-      void window.monitorWidget.setIgnoreMouseEvents(true);
-    }
   }
 
   const isCompact = settings?.compactMode ?? false;
@@ -176,18 +155,7 @@ export function App() {
               )}
             </div>
 
-            <div
-              className="actions"
-              onMouseEnter={handleMouseEnterActions}
-              onMouseLeave={handleMouseLeaveActions}
-            >
-              <button
-                title={settings?.clickThrough ? "取消鼠标穿透" : "开启鼠标穿透 (置顶防误触)"}
-                className={`icon-button ${settings?.clickThrough ? "active" : ""}`}
-                onClick={toggleClickThrough}
-              >
-                <MousePointerClick size={14} />
-              </button>
+            <div className="actions">
               <button
                 title={settings?.theme === "light" ? "切换为暗色毛玻璃" : "切换为亮色毛玻璃"}
                 className="icon-button"
@@ -224,18 +192,7 @@ export function App() {
                 <span className="pulse-dot" />
                 <span className="updated">{formatTime(snapshot.updatedAt)}</span>
               </div>
-              <div
-                className="actions"
-                onMouseEnter={handleMouseEnterActions}
-                onMouseLeave={handleMouseLeaveActions}
-              >
-                <button
-                  title={settings?.clickThrough ? "取消鼠标穿透" : "开启鼠标穿透 (置顶防误触)"}
-                  className={`icon-button ${settings?.clickThrough ? "active" : ""}`}
-                  onClick={toggleClickThrough}
-                >
-                  <MousePointerClick size={14} />
-                </button>
+              <div className="actions">
                 <button
                   title={settings?.theme === "light" ? "切换为暗色毛玻璃" : "切换为亮色毛玻璃"}
                   className="icon-button"
@@ -347,19 +304,6 @@ export function App() {
                   setSettings({ ...settings, refreshIntervalSec: Number(event.target.value) })
                 }
               />
-            </label>
-            <label className="toggle-label">
-              <span>鼠标穿透 (顶层防误触)</span>
-              <label className="switch">
-                <input
-                  type="checkbox"
-                  checked={settings.clickThrough}
-                  onChange={(event) =>
-                    setSettings({ ...settings, clickThrough: event.target.checked })
-                  }
-                />
-                <span className="slider" />
-              </label>
             </label>
             <label className="toggle-label">
               <span>亮色水晶毛玻璃</span>
