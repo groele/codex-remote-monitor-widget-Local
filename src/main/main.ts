@@ -130,10 +130,13 @@ function toggleWindow(): void {
   }
 }
 
+let isSettingsOpen = false;
+
 function openSettings(): void {
   if (!mainWindow) {
     return;
   }
+  isSettingsOpen = true;
   mainWindow.setMinimumSize(380, 320);
   mainWindow.setSize(430, 360);
   mainWindow.show();
@@ -144,6 +147,7 @@ async function closeSettings(): Promise<void> {
   if (!mainWindow) {
     return;
   }
+  isSettingsOpen = false;
   const settings = await settingsService.read();
   applyWindowMode(settings.compactMode);
 }
@@ -175,20 +179,21 @@ function handleWindowMove(): void {
   let newX = bounds.x;
   let newY = bounds.y;
 
-  // 1. Dynamic 10% Screen Edge Snapping (动态屏幕 10% 边缘磁力吸附)
-  const snapThresholdX = Math.round(workArea.width * 0.10);
-  const snapThresholdY = Math.round(workArea.height * 0.10);
+  // 1. Gentle Edge Snapping (only when settings modal is closed)
+  if (!isSettingsOpen) {
+    const snapThreshold = 25; // 25px subtle snapping threshold for maximum desktop freedom
 
-  if (Math.abs(newX - workArea.x) < snapThresholdX) {
-    newX = workArea.x;
-  } else if (Math.abs((newX + bounds.width) - (workArea.x + workArea.width)) < snapThresholdX) {
-    newX = workArea.x + workArea.width - bounds.width;
-  }
+    if (Math.abs(newX - workArea.x) < snapThreshold) {
+      newX = workArea.x;
+    } else if (Math.abs((newX + bounds.width) - (workArea.x + workArea.width)) < snapThreshold) {
+      newX = workArea.x + workArea.width - bounds.width;
+    }
 
-  if (Math.abs(newY - workArea.y) < snapThresholdY) {
-    newY = workArea.y;
-  } else if (Math.abs((newY + bounds.height) - (workArea.y + workArea.height)) < snapThresholdY) {
-    newY = workArea.y + workArea.height - bounds.height;
+    if (Math.abs(newY - workArea.y) < snapThreshold) {
+      newY = workArea.y;
+    } else if (Math.abs((newY + bounds.height) - (workArea.y + workArea.height)) < snapThreshold) {
+      newY = workArea.y + workArea.height - bounds.height;
+    }
   }
 
   // 2. Prevent dragging out of screen bounds (防止被拖到屏幕外)
