@@ -1,160 +1,137 @@
-# Codex Remote Monitor Widget
+# Codex Remote & Local Monitor Widget (v1.1.0)
 
-A small Windows desktop widget that shows local Codex quota and live CPU/GPU usage from a remote Linux machine over SSH.
+[中文 README](#-codex-remote--local-monitor-widget-v110---中文说明) | [English README](#-codex-remote--local-monitor-widget-v110---english-guide)
 
-The app is built with Electron, React, and TypeScript. It is designed to sit quietly on the desktop, stay on top when needed, and make long-running remote jobs easier to watch.
+---
 
-## Features
+## 🇨🇳 Codex Remote & Local Monitor Widget (v1.1.0) - 中文说明
 
-- Floating frameless Windows desktop widget.
-- Tray menu with show/hide, refresh, settings, and exit actions.
-- Codex quota display through local `codex app-server` JSON-RPC:
-  - calls `account/rateLimits/read`
-  - listens for `account/rateLimits/updated`
-  - displays remaining percentage and reset time
-- Remote Linux monitoring over SSH:
-  - host/IP, port, username, and password configured in the settings panel
-  - CPU usage from `/proc/stat`
-  - NVIDIA GPU usage, memory, and temperature from `nvidia-smi`
-- Passwords are encrypted locally with Electron `safeStorage`.
-- Unit tests for CPU parsing, GPU parsing, and Codex quota normalization.
+> **项目说明**：本项目**基于原始 Codex Monitor Widget 开发**，并在其基础上进行了**深度重构与重点本地化检测增强**。现在无需复杂的远程 SSH 连接配置，即可全自动检测并实时监控**本地电脑 (Windows) 的 CPU、RAM 内存与 NVIDIA GPU 显卡**运行状态，结合优雅的现代毛玻璃悬浮挂件 UI，打造极致的桌面监控体验。
 
-## Screenshot
+### ✨ 核心特性与本地化检测增强
 
-Screenshot coming soon. The current UI is a compact translucent widget inspired by desktop quota/status cards.
+#### 💻 1. 本地化硬件状态检测 (重点增强)
+- **CPU 实时占用率**：精准采集本地 CPU 核心利用率，具备 3 级负载预警指示。
+- **RAM 内存监控**：实时展示内存已用/总容量（GB）及占用百分比。
+- **NVIDIA GPU 显卡状态**：
+  - 智能扫描 Windows 系统 `PATH`、`NVSMI` 以及 `DriverStore` 驱动路径中的 `nvidia-smi` 可执行文件。
+  - 自动读取 **GPU 核心利用率 (%)**、**显存使用/总容量 (MB)** 及 **GPU 实时温度 (°C)**。
+  - 兼容各类 NVIDIA 桌面卡与移动端独立显卡。
 
-## Requirements
+#### 🚀 2. Codex 周限额与额度监控
+- **全容错解析**：完美解析 OpenAI Codex API 的 `5小时限额` 与 `周限额` 数据。
+- **网络波动防崩溃**：网络连通波动时自动启用上一次数据缓存，并呈现友好的网络重试提示。
 
-- Windows 10 or Windows 11
-- Node.js 20 or newer
-- npm
-- Codex CLI available locally, if you want Codex quota data
-- A remote Linux machine with SSH enabled
-- NVIDIA drivers and `nvidia-smi` on the remote machine, if you want GPU metrics
+#### 🧲 3. 屏幕边缘检测与磁力吸附算法
+- **自由移动**：小组件支持在屏幕任意位置自由摆放。
+- **20px 磁力吸附**：靠近屏幕左、右、上、下边缘小于 20px 时，自动强力平滑吸附到边缘。
+- **防越界保护 (Clamp)**：严格限制窗口不能被拖出显示器可视工作区外，防止窗口丢失。
 
-## Quick Start
+#### 🎨 4. 极致毛玻璃质感 UI
+- **单层透亮毛玻璃**：消除多余外边框遮罩，打造干净纯粹的悬浮质感。
+- **双主题随心切**：支持 **暗黑亚克力毛玻璃** 与 **亮色水晶毛玻璃** 模式，一键随时切换。
 
-```powershell
+#### 📐 5. 双模式与设置智能展开
+- **迷你胶囊模式 (44px)**：缩小为精简横条，仅展示关键指标 Badge。
+- **全量卡片模式 (360px)**：展开展示完整进度条与详细硬件数据。
+- **设置智能展开**：在迷你模式下打开设置时，自动扩展为 360px 舒适大窗口，关闭后自动还原迷你状态。
+
+#### ⚙️ 6. 便捷系统管理
+- **开机自动启动 (Auto-Start)**：设置中可一键开启/关闭开机自启。
+- **窗口始终置顶 (Always-On-Top)**：一键锁定置顶悬浮在所有窗口上方。
+- **系统托盘**：包含全新设计的高清 App Icon，支持最小化至托盘与右键菜单控制。
+
+---
+
+### 🛠️ 安装与运行
+
+#### 1. 使用一键安装包 (推荐)
+直接下载并运行打包好的安装包：
+- **[Codex Monitor Widget Setup 1.1.0.exe](./release/Codex%20Monitor%20Widget%20Setup%201.1.0.exe)**
+
+#### 2. 本地开发与编译
+
+```bash
+# 1. 安装依赖
 npm install
+
+# 2. 启动开发模式 (Vite + Electron)
 npm run dev
-```
 
-The widget opens as an Electron desktop window. Use the settings button to configure:
-
-- remote host/IP
-- SSH port, usually `22`
-- username
-- password
-- refresh interval
-
-To build the production files:
-
-```powershell
-npm run build
-```
-
-To run tests:
-
-```powershell
-npm test
-```
-
-To run type checks:
-
-```powershell
+# 3. 执行类型检查与单元测试
 npm run typecheck
-```
+npm run test
 
-## Remote Host Notes
-
-The first version assumes the remote host is Linux.
-
-CPU usage is calculated from two `/proc/stat` samples. GPU metrics use:
-
-```bash
-nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total,temperature.gpu --format=csv,noheader,nounits
-```
-
-If `nvidia-smi` is not available, the widget continues showing CPU metrics and displays GPU as unavailable.
-
-## Codex Quota Notes
-
-Codex quota is read from the local Codex app-server process. The app starts:
-
-```bash
-codex app-server
-```
-
-Then it initializes a JSON-RPC connection and reads:
-
-- `account/rateLimits/read`
-- `account/rateLimits/updated`
-
-If Codex is not installed or the app-server protocol changes, the widget shows an error instead of crashing.
-
-## Security
-
-- SSH passwords are encrypted through Electron `safeStorage` before being written to app data.
-- Passwords are never written to `.env` files.
-- The renderer process uses a preload bridge and does not get direct Node.js access.
-- Host key fingerprints are stored after a successful connection test.
-
-For vulnerability reports, see [SECURITY.md](SECURITY.md).
-
-## Project Structure
-
-```text
-src/main      Electron main process: window, tray, settings, Codex, SSH
-src/preload   Safe IPC bridge exposed to the renderer
-src/renderer  React widget UI and settings panel
-src/shared    Shared types, parsers, and normalization logic
-scripts       Development and cleanup scripts
-```
-
-## Scripts
-
-```text
-npm run dev        Start Vite, compile main/preload in watch mode, and open Electron
-npm run clean      Remove dist
-npm run build      Build Electron main/preload and renderer
-npm run start      Build and start Electron
-npm run test       Run unit tests
-npm run typecheck  Run TypeScript checks
-```
-
-## Packaging
-
-The default package command creates an unpacked Windows app directory and reuses the Electron runtime installed in `node_modules/electron/dist`. This avoids downloading Electron during packaging.
-
-```powershell
-npm run package:win
-```
-
-Then run:
-
-```text
-release/win-unpacked/Codex Monitor Widget.exe
-```
-
-To build an NSIS installer instead:
-
-```powershell
+# 4. 打包 Windows 安装程序 (.exe)
 npm run package:installer
 ```
 
-The installer target may download additional builder assets, depending on your local cache and network environment. A signed installer is not configured yet.
+---
 
-The unpacked directory build disables Windows executable resource editing/signing so it can work without downloading `winCodeSign` assets. The executable may show Electron's default metadata until a signed release pipeline is added.
+## 🇬🇧 Codex Remote & Local Monitor Widget (v1.1.0) - English Guide
 
-## Roadmap
+> **Project Notice**: This project is **developed based on the original Codex Monitor Widget** with comprehensive refactoring and **major enhancements for local hardware metrics detection**. Without requiring complex remote SSH setup, it automatically monitors **local Windows PC metrics (CPU, RAM, and NVIDIA GPU)** in real-time with an elegant frosted glass desktop overlay interface.
 
-- Add screenshots and release artifacts.
-- Add SSH private key authentication.
-- Add Linux and macOS window behavior support.
-- Add AMD/Intel GPU providers.
-- Add richer Codex usage details.
-- Add import/export for settings.
+### ✨ Key Features & Enhancements
 
-## License
+#### 💻 1. Local Hardware Metrics Monitoring (Major Highlight)
+- **Local CPU Usage**: Real-time CPU core utilization percentage with 3-tier warning thresholds.
+- **RAM Memory**: Live GB used / total capacity & memory pressure indicator.
+- **NVIDIA GPU Detection**:
+  - Automatically scans Windows system `PATH`, `NVSMI`, and `DriverStore` directories for `nvidia-smi`.
+  - Live **GPU Core Utilization (%)**, **VRAM Used / Total (MB)**, and **GPU Temperature (°C)**.
+  - Compatible with all NVIDIA desktop and laptop discrete graphics cards.
 
-MIT
+#### 🚀 2. Codex Quota & Rate Limit Monitoring
+- **Robust Quota Normalization**: Fault-tolerant parsing for 5-hour and weekly quotas.
+- **Network Glitch Resilience**: Retains cached metrics during temporary network disconnects with user-friendly retry notices.
+
+#### 🧲 3. Screen Edge Snapping & Boundary Clamping
+- **Free Dragging**: Drag the widget anywhere across multiple monitors.
+- **20px Magnetic Snapping**: Smoothly snaps to screen edges when dragged within 20px threshold.
+- **Out-of-Bounds Clamping**: Prevents accidental dragging outside the screen work area.
+
+#### 🎨 4. Frosted Glassmorphism UI
+- **Single Layer Backdrop Blur**: Sleek acrylic frosted glass design without double blurred overlays.
+- **Dual Themes**: Switch between **Dark Acrylic Glass** and **Light Crystal Glass** anytime.
+
+#### 📐 5. Compact Pill Mode & Smart Window Auto-Expansion
+- **Compact Bar (44px)**: Minimized horizontal bar with inline metrics badges.
+- **Full View (360px)**: Expanded card view with progress bars.
+- **Auto-Expanding Settings**: Opening settings in Compact mode automatically expands the window to 360px and restores it upon closing.
+
+#### ⚙️ 6. System Integration & Auto-Start
+- **Auto-Start on Boot**: Toggle launch on Windows startup in Settings.
+- **Always-On-Top**: Pin widget above all windows.
+- **System Tray**: High-DPI tray icon with right-click context menu controls.
+
+---
+
+### 🛠️ Installation & Build
+
+#### 1. Pre-built Windows Installer (Recommended)
+Download and run the installer:
+- **[Codex Monitor Widget Setup 1.1.0.exe](./release/Codex%20Monitor%20Widget%20Setup%201.1.0.exe)**
+
+#### 2. Build From Source
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Start dev server (Vite + Electron)
+npm run dev
+
+# 3. Run typecheck & tests
+npm run typecheck
+npm run test
+
+# 4. Package Windows NSIS Installer (.exe)
+npm run package:installer
+```
+
+---
+
+## 📄 License
+
+[MIT License](./LICENSE)

@@ -330,6 +330,17 @@ export function App() {
               </label>
             </label>
             <label className="toggle-label">
+              <span>开机自动启动</span>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={settings.autoLaunch ?? false}
+                  onChange={(event) => setSettings({ ...settings, autoLaunch: event.target.checked })}
+                />
+                <span className="slider" />
+              </label>
+            </label>
+            <label className="toggle-label">
               <span>窗口始终置顶</span>
               <label className="switch">
                 <input

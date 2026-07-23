@@ -49,6 +49,7 @@ async function createWindow(): Promise<void> {
 
   mainWindow.setAlwaysOnTop(settings.alwaysOnTop, "floating");
   applyWindowMode(settings.compactMode);
+  applyAutoLaunch(settings.autoLaunch);
   mainWindow.once("ready-to-show", () => mainWindow?.show());
   mainWindow.on("close", (event) => {
     if (!isQuitting) {
@@ -216,6 +217,17 @@ function applyWindowMode(compactMode: boolean): void {
   }
 }
 
+function applyAutoLaunch(autoLaunch: boolean): void {
+  try {
+    app.setLoginItemSettings({
+      openAtLogin: autoLaunch,
+      path: app.getPath("exe")
+    });
+  } catch {
+    // Ignore errors during dev mode
+  }
+}
+
 function registerIpc(): void {
   ipcMain.handle("settings:read", async () => settingsService.read());
   ipcMain.handle("settings:open", async () => openSettings());
@@ -226,6 +238,7 @@ function registerIpc(): void {
       mainWindow.setAlwaysOnTop(saved.alwaysOnTop, "floating");
       applyWindowMode(saved.compactMode);
     }
+    applyAutoLaunch(saved.autoLaunch);
     await snapshotService.restartTimer();
     void snapshotService.refresh();
     return saved;

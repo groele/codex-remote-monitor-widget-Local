@@ -2,6 +2,7 @@ export interface Settings {
   refreshIntervalSec: number;
   alwaysOnTop: boolean;
   compactMode: boolean;
+  autoLaunch: boolean;
   theme?: "dark" | "light";
   showCodexQuota: boolean;
   showCpu: boolean;
