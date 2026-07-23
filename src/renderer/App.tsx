@@ -1,4 +1,17 @@
-import { Cpu, Gauge, HardDrive, MonitorCog, Pin, PinOff, RefreshCw, Settings, X, Zap } from "lucide-react";
+import {
+  Cpu,
+  Gauge,
+  HardDrive,
+  Maximize2,
+  Minimize2,
+  MonitorCog,
+  Pin,
+  PinOff,
+  RefreshCw,
+  Settings,
+  X,
+  Zap
+} from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import type { QuotaWindow, Settings as WidgetSettings, WidgetSnapshot } from "../shared/types";
 
@@ -51,6 +64,14 @@ export function App() {
     setSettings({ ...settings, alwaysOnTop: isPinned });
   }
 
+  async function toggleCompact() {
+    if (!settings) {
+      return;
+    }
+    const isCompact = await window.monitorWidget.toggleCompactMode();
+    setSettings({ ...settings, compactMode: isCompact });
+  }
+
   async function saveSettings(event: FormEvent) {
     event.preventDefault();
     if (!settings) {
@@ -63,90 +84,167 @@ export function App() {
     void refresh();
   }
 
+  const isCompact = settings?.compactMode ?? false;
+
   return (
     <main className="shell">
       <section className="widget">
-        <header className="titlebar">
-          <div className="brand">
-            <span className="brand-mark">
-              <MonitorCog size={16} />
-            </span>
-            <span>Codex</span>
+        {isCompact ? (
+          /* 迷你精简横条视图 (Compact View) */
+          <div className="compact-bar">
+            <div className="brand">
+              <span className="brand-mark">
+                <MonitorCog size={14} />
+              </span>
+              <span className="pulse-dot" />
+            </div>
+
+            <div className="compact-metrics">
+              {(settings?.showCpu ?? true) && (
+                <div className="compact-item">
+                  <span className="compact-label">CPU</span>
+                  <span className={`badge ${getUsageTone(local?.cpuPercent ?? 0, "green")}`}>
+                    {local?.cpuPercent == null ? "N/A" : `${local.cpuPercent.toFixed(0)}%`}
+                  </span>
+                </div>
+              )}
+              {(settings?.showRam ?? true) && (
+                <div className="compact-item">
+                  <span className="compact-label">RAM</span>
+                  <span className={`badge ${getUsageTone(local?.ram?.usedPercent ?? 0, "blue")}`}>
+                    {local?.ram ? `${local.ram.usedPercent.toFixed(0)}%` : "N/A"}
+                  </span>
+                </div>
+              )}
+              {(settings?.showGpu ?? true) && (
+                <div className="compact-item">
+                  <span className="compact-label">GPU</span>
+                  <span
+                    className={`badge ${
+                      hasGpu ? getUsageTone(local!.gpus[0].utilizationPercent ?? 0, "blue") : "gray"
+                    }`}
+                  >
+                    {hasGpu && local!.gpus[0].utilizationPercent != null
+                      ? `${local!.gpus[0].utilizationPercent}%`
+                      : "N/A"}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="actions">
+              <button title="展开全量卡片模式" className="icon-button" onClick={toggleCompact}>
+                <Maximize2 size={14} />
+              </button>
+              <button title="设置" className="icon-button" onClick={() => setShowSettings(true)}>
+                <Settings size={14} />
+              </button>
+              <button
+                title="隐藏至托盘"
+                className="icon-button"
+                onClick={() => void window.monitorWidget.closeWindow()}
+              >
+                <X size={14} />
+              </button>
+            </div>
           </div>
-          <div className="updated-container">
-            <span className="pulse-dot" />
-            <span className="updated">{formatTime(snapshot.updatedAt)}</span>
-          </div>
-          <div className="actions">
-            <button
-              title={settings?.alwaysOnTop ? "取消置顶" : "窗口置顶"}
-              className={`icon-button ${settings?.alwaysOnTop ? "active" : ""}`}
-              onClick={togglePin}
-            >
-              {settings?.alwaysOnTop ? <PinOff size={14} /> : <Pin size={14} />}
-            </button>
-            <button title="刷新" className="icon-button" onClick={refresh} disabled={isRefreshing}>
-              <RefreshCw size={14} className={isRefreshing ? "spin" : ""} />
-            </button>
-            <button title="设置" className="icon-button" onClick={() => setShowSettings(true)}>
-              <Settings size={14} />
-            </button>
-            <button title="隐藏至托盘" className="icon-button" onClick={() => void window.monitorWidget.closeWindow()}>
-              <X size={14} />
-            </button>
-          </div>
-        </header>
+        ) : (
+          /* 全量卡片视图 (Full View) */
+          <>
+            <header className="titlebar">
+              <div className="brand">
+                <span className="brand-mark">
+                  <MonitorCog size={16} />
+                </span>
+                <span>Codex</span>
+              </div>
+              <div className="updated-container">
+                <span className="pulse-dot" />
+                <span className="updated">{formatTime(snapshot.updatedAt)}</span>
+              </div>
+              <div className="actions">
+                <button
+                  title="缩小为迷你横条模式"
+                  className="icon-button"
+                  onClick={toggleCompact}
+                >
+                  <Minimize2 size={14} />
+                </button>
+                <button
+                  title={settings?.alwaysOnTop ? "取消置顶" : "窗口置顶"}
+                  className={`icon-button ${settings?.alwaysOnTop ? "active" : ""}`}
+                  onClick={togglePin}
+                >
+                  {settings?.alwaysOnTop ? <PinOff size={14} /> : <Pin size={14} />}
+                </button>
+                <button title="刷新" className="icon-button" onClick={refresh} disabled={isRefreshing}>
+                  <RefreshCw size={14} className={isRefreshing ? "spin" : ""} />
+                </button>
+                <button title="设置" className="icon-button" onClick={() => setShowSettings(true)}>
+                  <Settings size={14} />
+                </button>
+                <button
+                  title="隐藏至托盘"
+                  className="icon-button"
+                  onClick={() => void window.monitorWidget.closeWindow()}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            </header>
 
-        <div className="content">
-          {(settings?.showCodexQuota ?? true) && (
-            <>
-              <QuotaRow title={snapshot.codex?.shortWindow?.label ?? "5小时"} window={snapshot.codex?.shortWindow} />
-              <QuotaRow title={snapshot.codex?.longWindow?.label ?? "周限额"} window={snapshot.codex?.longWindow} />
-            </>
-          )}
+            <div className="content">
+              {(settings?.showCodexQuota ?? true) && (
+                <>
+                  <QuotaRow title={snapshot.codex?.shortWindow?.label ?? "5小时"} window={snapshot.codex?.shortWindow} />
+                  <QuotaRow title={snapshot.codex?.longWindow?.label ?? "周限额"} window={snapshot.codex?.longWindow} />
+                </>
+              )}
 
-          {(settings?.showCodexQuota ?? true) &&
-            ((settings?.showCpu ?? true) || (settings?.showRam ?? true) || (settings?.showGpu ?? true)) && (
-              <div className="divider" />
-            )}
+              {(settings?.showCodexQuota ?? true) &&
+                ((settings?.showCpu ?? true) || (settings?.showRam ?? true) || (settings?.showGpu ?? true)) && (
+                  <div className="divider" />
+                )}
 
-          {(settings?.showCpu ?? true) && (
-            <MetricRow
-              icon={<Cpu size={15} />}
-              title="CPU"
-              value={local?.cpuPercent == null ? "N/A" : `${local.cpuPercent.toFixed(1)}%`}
-              subtitle={local?.hostname ? `本地 (${local.hostname})` : "本地电脑"}
-              percent={local?.cpuPercent ?? 0}
-              tone={getUsageTone(local?.cpuPercent ?? 0, "green")}
-            />
-          )}
-          {(settings?.showRam ?? true) && (
-            <MetricRow
-              icon={<HardDrive size={15} />}
-              title="RAM"
-              value={local?.ram ? `${local.ram.usedPercent.toFixed(1)}%` : "N/A"}
-              subtitle={
-                local?.ram
-                  ? `${(local.ram.usedMb / 1024).toFixed(1)} / ${(local.ram.totalMb / 1024).toFixed(1)} GB`
-                  : "等待数据"
-              }
-              percent={local?.ram?.usedPercent ?? 0}
-              tone={getUsageTone(local?.ram?.usedPercent ?? 0, "blue")}
-            />
-          )}
-          {(settings?.showGpu ?? true) && (
-            <MetricRow
-              icon={<Zap size={15} />}
-              title="GPU"
-              value={hasGpu && local!.gpus[0].utilizationPercent != null ? `${local!.gpus[0].utilizationPercent}%` : "N/A"}
-              subtitle={gpuSubtitle(local)}
-              percent={hasGpu ? local!.gpus[0].utilizationPercent ?? 0 : 0}
-              tone={hasGpu ? getUsageTone(local!.gpus[0].utilizationPercent ?? 0, "blue") : "gray"}
-            />
-          )}
-        </div>
+              {(settings?.showCpu ?? true) && (
+                <MetricRow
+                  icon={<Cpu size={15} />}
+                  title="CPU"
+                  value={local?.cpuPercent == null ? "N/A" : `${local.cpuPercent.toFixed(1)}%`}
+                  subtitle={local?.hostname ? `本地 (${local.hostname})` : "本地电脑"}
+                  percent={local?.cpuPercent ?? 0}
+                  tone={getUsageTone(local?.cpuPercent ?? 0, "green")}
+                />
+              )}
+              {(settings?.showRam ?? true) && (
+                <MetricRow
+                  icon={<HardDrive size={15} />}
+                  title="RAM"
+                  value={local?.ram ? `${local.ram.usedPercent.toFixed(1)}%` : "N/A"}
+                  subtitle={
+                    local?.ram
+                      ? `${(local.ram.usedMb / 1024).toFixed(1)} / ${(local.ram.totalMb / 1024).toFixed(1)} GB`
+                      : "等待数据"
+                  }
+                  percent={local?.ram?.usedPercent ?? 0}
+                  tone={getUsageTone(local?.ram?.usedPercent ?? 0, "blue")}
+                />
+              )}
+              {(settings?.showGpu ?? true) && (
+                <MetricRow
+                  icon={<Zap size={15} />}
+                  title="GPU"
+                  value={hasGpu && local!.gpus[0].utilizationPercent != null ? `${local!.gpus[0].utilizationPercent}%` : "N/A"}
+                  subtitle={gpuSubtitle(local)}
+                  percent={hasGpu ? local!.gpus[0].utilizationPercent ?? 0 : 0}
+                  tone={hasGpu ? getUsageTone(local!.gpus[0].utilizationPercent ?? 0, "blue") : "gray"}
+                />
+              )}
+            </div>
 
-        {snapshot.errors.length > 0 && <div className="status-line">{snapshot.errors[0]}</div>}
+            {snapshot.errors.length > 0 && <div className="status-line">{snapshot.errors[0]}</div>}
+          </>
+        )}
       </section>
 
       {showSettings && settings && (
@@ -169,6 +267,17 @@ export function App() {
                   setSettings({ ...settings, refreshIntervalSec: Number(event.target.value) })
                 }
               />
+            </label>
+            <label className="toggle-label">
+              <span>缩小为迷你模式</span>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={settings.compactMode}
+                  onChange={(event) => setSettings({ ...settings, compactMode: event.target.checked })}
+                />
+                <span className="slider" />
+              </label>
             </label>
             <label className="toggle-label">
               <span>窗口始终置顶</span>

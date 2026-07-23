@@ -1,6 +1,7 @@
 export interface Settings {
   refreshIntervalSec: number;
   alwaysOnTop: boolean;
+  compactMode: boolean;
   showCodexQuota: boolean;
   showCpu: boolean;
   showRam: boolean;
@@ -69,8 +70,10 @@ export interface RendererApi {
   openSettings: () => Promise<void>;
   closeWindow: () => Promise<void>;
   toggleAlwaysOnTop: () => Promise<boolean>;
+  toggleCompactMode: () => Promise<boolean>;
   onSnapshotUpdated: (callback: (snapshot: WidgetSnapshot) => void) => () => void;
   onOpenSettings: (callback: () => void) => () => void;
 }
+
 
 

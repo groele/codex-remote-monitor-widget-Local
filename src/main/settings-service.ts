@@ -6,6 +6,7 @@ import type { Settings } from "../shared/types";
 const DEFAULT_SETTINGS: Settings = {
   refreshIntervalSec: 5,
   alwaysOnTop: true,
+  compactMode: false,
   showCodexQuota: true,
   showCpu: true,
   showRam: true,
@@ -32,6 +33,7 @@ export class SettingsService {
       ...current,
       refreshIntervalSec: normalizeRefresh(input.refreshIntervalSec),
       alwaysOnTop: Boolean(input.alwaysOnTop),
+      compactMode: Boolean(input.compactMode),
       showCodexQuota: Boolean(input.showCodexQuota),
       showCpu: Boolean(input.showCpu),
       showRam: Boolean(input.showRam),
@@ -43,6 +45,7 @@ export class SettingsService {
     await fs.writeFile(this.getFilePath(), JSON.stringify(stored, null, 2), "utf8");
     return this.read();
   }
+
 
 
   async saveWindowBounds(bounds: Settings["windowBounds"]): Promise<void> {

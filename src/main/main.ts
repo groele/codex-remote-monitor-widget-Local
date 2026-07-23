@@ -42,6 +42,7 @@ async function createWindow(): Promise<void> {
   });
 
   mainWindow.setAlwaysOnTop(settings.alwaysOnTop, "floating");
+  applyWindowMode(settings.compactMode);
   mainWindow.once("ready-to-show", () => mainWindow?.show());
   mainWindow.on("close", (event) => {
     if (!isQuitting) {
@@ -146,6 +147,19 @@ function saveWindowBoundsSoon(): void {
   }, 300);
 }
 
+function applyWindowMode(compactMode: boolean): void {
+  if (!mainWindow) {
+    return;
+  }
+  if (compactMode) {
+    mainWindow.setMinimumSize(320, 44);
+    mainWindow.setSize(340, 44);
+  } else {
+    mainWindow.setMinimumSize(380, 320);
+    mainWindow.setSize(430, 360);
+  }
+}
+
 function registerIpc(): void {
   ipcMain.handle("settings:read", async () => settingsService.read());
   ipcMain.handle("settings:open", async () => openSettings());
@@ -153,6 +167,7 @@ function registerIpc(): void {
     const saved = await settingsService.save(settings);
     if (mainWindow) {
       mainWindow.setAlwaysOnTop(saved.alwaysOnTop, "floating");
+      applyWindowMode(saved.compactMode);
     }
     await snapshotService.restartTimer();
     void snapshotService.refresh();
@@ -169,9 +184,16 @@ function registerIpc(): void {
     }
     return updated.alwaysOnTop;
   });
+  ipcMain.handle("window:toggle-compact-mode", async () => {
+    const current = await settingsService.read();
+    const updated = await settingsService.save({ ...current, compactMode: !current.compactMode });
+    applyWindowMode(updated.compactMode);
+    return updated.compactMode;
+  });
   ipcMain.handle("snapshot:read", async () => snapshotService.getSnapshot());
   ipcMain.handle("snapshot:refresh", async () => snapshotService.refresh());
 }
+
 
 app.whenReady().then(async () => {
   registerIpc();

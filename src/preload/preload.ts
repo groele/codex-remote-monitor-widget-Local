@@ -9,6 +9,7 @@ const api: RendererApi = {
   openSettings: () => ipcRenderer.invoke("settings:open"),
   closeWindow: () => ipcRenderer.invoke("window:close"),
   toggleAlwaysOnTop: () => ipcRenderer.invoke("window:toggle-always-on-top"),
+  toggleCompactMode: () => ipcRenderer.invoke("window:toggle-compact-mode"),
   onSnapshotUpdated: (callback: (snapshot: WidgetSnapshot) => void) => {
     const listener = (_event: Electron.IpcRendererEvent, snapshot: WidgetSnapshot) => callback(snapshot);
     ipcRenderer.on("snapshot:updated", listener);
