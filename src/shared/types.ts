@@ -2,6 +2,7 @@ export interface Settings {
   refreshIntervalSec: number;
   alwaysOnTop: boolean;
   compactMode: boolean;
+  clickThrough: boolean;
   theme?: "dark" | "light";
   showCodexQuota: boolean;
   showCpu: boolean;
@@ -69,9 +70,12 @@ export interface RendererApi {
   readSnapshot: () => Promise<WidgetSnapshot>;
   refreshSnapshot: () => Promise<WidgetSnapshot>;
   openSettings: () => Promise<void>;
+  closeSettings: () => Promise<void>;
   closeWindow: () => Promise<void>;
   toggleAlwaysOnTop: () => Promise<boolean>;
   toggleCompactMode: () => Promise<boolean>;
+  toggleClickThrough: () => Promise<boolean>;
+  setIgnoreMouseEvents: (ignore: boolean) => Promise<void>;
   onSnapshotUpdated: (callback: (snapshot: WidgetSnapshot) => void) => () => void;
   onOpenSettings: (callback: () => void) => () => void;
 }

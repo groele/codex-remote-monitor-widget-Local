@@ -6,6 +6,7 @@ import {
   Minimize2,
   MonitorCog,
   Moon,
+  MousePointerClick,
   Pin,
   PinOff,
   RefreshCw,
@@ -74,6 +75,14 @@ export function App() {
     setSettings({ ...settings, compactMode: isCompact });
   }
 
+  async function toggleClickThrough() {
+    if (!settings) {
+      return;
+    }
+    const isClickThrough = await window.monitorWidget.toggleClickThrough();
+    setSettings({ ...settings, clickThrough: isClickThrough });
+  }
+
   async function toggleTheme() {
     if (!settings) {
       return;
@@ -81,6 +90,16 @@ export function App() {
     const nextTheme = settings.theme === "light" ? "dark" : "light";
     const saved = await window.monitorWidget.saveSettings({ ...settings, theme: nextTheme });
     setSettings(saved);
+  }
+
+  async function handleOpenSettings() {
+    setShowSettings(true);
+    await window.monitorWidget.openSettings();
+  }
+
+  async function handleCloseSettings() {
+    setShowSettings(false);
+    await window.monitorWidget.closeSettings();
   }
 
   async function saveSettings(event: FormEvent) {
@@ -95,13 +114,26 @@ export function App() {
     void refresh();
   }
 
+  function handleMouseEnterActions() {
+    if (settings?.clickThrough) {
+      void window.monitorWidget.setIgnoreMouseEvents(false);
+    }
+  }
+
+  function handleMouseLeaveActions() {
+    if (settings?.clickThrough) {
+      void window.monitorWidget.setIgnoreMouseEvents(true);
+    }
+  }
+
   const isCompact = settings?.compactMode ?? false;
+  const renderCompact = isCompact && !showSettings;
   const themeClass = settings?.theme ?? "dark";
 
   return (
     <main className={`shell ${themeClass}`}>
       <section className="widget">
-        {isCompact ? (
+        {renderCompact ? (
           /* 迷你精简横条视图 (Compact View) */
           <div className="compact-bar">
             <div className="brand">
@@ -144,7 +176,18 @@ export function App() {
               )}
             </div>
 
-            <div className="actions">
+            <div
+              className="actions"
+              onMouseEnter={handleMouseEnterActions}
+              onMouseLeave={handleMouseLeaveActions}
+            >
+              <button
+                title={settings?.clickThrough ? "取消鼠标穿透" : "开启鼠标穿透 (置顶防误触)"}
+                className={`icon-button ${settings?.clickThrough ? "active" : ""}`}
+                onClick={toggleClickThrough}
+              >
+                <MousePointerClick size={14} />
+              </button>
               <button
                 title={settings?.theme === "light" ? "切换为暗色毛玻璃" : "切换为亮色毛玻璃"}
                 className="icon-button"
@@ -155,7 +198,7 @@ export function App() {
               <button title="展开全量卡片模式" className="icon-button" onClick={toggleCompact}>
                 <Maximize2 size={14} />
               </button>
-              <button title="设置" className="icon-button" onClick={() => setShowSettings(true)}>
+              <button title="设置" className="icon-button" onClick={() => void handleOpenSettings()}>
                 <Settings size={14} />
               </button>
               <button
@@ -181,7 +224,18 @@ export function App() {
                 <span className="pulse-dot" />
                 <span className="updated">{formatTime(snapshot.updatedAt)}</span>
               </div>
-              <div className="actions">
+              <div
+                className="actions"
+                onMouseEnter={handleMouseEnterActions}
+                onMouseLeave={handleMouseLeaveActions}
+              >
+                <button
+                  title={settings?.clickThrough ? "取消鼠标穿透" : "开启鼠标穿透 (置顶防误触)"}
+                  className={`icon-button ${settings?.clickThrough ? "active" : ""}`}
+                  onClick={toggleClickThrough}
+                >
+                  <MousePointerClick size={14} />
+                </button>
                 <button
                   title={settings?.theme === "light" ? "切换为暗色毛玻璃" : "切换为亮色毛玻璃"}
                   className="icon-button"
@@ -206,7 +260,7 @@ export function App() {
                 <button title="刷新" className="icon-button" onClick={refresh} disabled={isRefreshing}>
                   <RefreshCw size={14} className={isRefreshing ? "spin" : ""} />
                 </button>
-                <button title="设置" className="icon-button" onClick={() => setShowSettings(true)}>
+                <button title="设置" className="icon-button" onClick={() => void handleOpenSettings()}>
                   <Settings size={14} />
                 </button>
                 <button
@@ -278,7 +332,7 @@ export function App() {
           <form onSubmit={saveSettings}>
             <header>
               <strong>设置</strong>
-              <button title="关闭设置" type="button" className="icon-button" onClick={() => setShowSettings(false)}>
+              <button title="关闭设置" type="button" className="icon-button" onClick={() => void handleCloseSettings()}>
                 <X size={14} />
               </button>
             </header>
@@ -293,6 +347,19 @@ export function App() {
                   setSettings({ ...settings, refreshIntervalSec: Number(event.target.value) })
                 }
               />
+            </label>
+            <label className="toggle-label">
+              <span>鼠标穿透 (顶层防误触)</span>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={settings.clickThrough}
+                  onChange={(event) =>
+                    setSettings({ ...settings, clickThrough: event.target.checked })
+                  }
+                />
+                <span className="slider" />
+              </label>
             </label>
             <label className="toggle-label">
               <span>亮色水晶毛玻璃</span>

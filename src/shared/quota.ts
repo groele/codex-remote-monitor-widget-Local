@@ -70,8 +70,15 @@ export function normalizeCodexQuota(response: any): CodexQuotaSnapshot | null {
     snapshot.weekly ??
     (Array.isArray(snapshot.windows) ? snapshot.windows[1] : null);
 
-  const shortWindow = normalizeWindow(primaryRaw, "5小时");
-  const longWindow = normalizeWindow(secondaryRaw, "周限额");
+  let shortWindow = normalizeWindow(primaryRaw, "5小时");
+  let longWindow = normalizeWindow(secondaryRaw, "周限额");
+
+  // Prevent duplicate labels if both shortWindow and longWindow defaulted or parsed to "周限额"
+  if (shortWindow && longWindow && shortWindow.label === longWindow.label) {
+    shortWindow = { ...shortWindow, label: "5小时" };
+  } else if (shortWindow && shortWindow.label === "周限额" && !longWindow) {
+    shortWindow = { ...shortWindow, label: "5小时" };
+  }
 
   if (!shortWindow && !longWindow) {
     return null;

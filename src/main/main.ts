@@ -43,6 +43,7 @@ async function createWindow(): Promise<void> {
 
   mainWindow.setAlwaysOnTop(settings.alwaysOnTop, "floating");
   applyWindowMode(settings.compactMode);
+  applyClickThrough(settings.clickThrough);
   mainWindow.once("ready-to-show", () => mainWindow?.show());
   mainWindow.on("close", (event) => {
     if (!isQuitting) {
@@ -127,8 +128,18 @@ function openSettings(): void {
   if (!mainWindow) {
     return;
   }
+  mainWindow.setMinimumSize(380, 320);
+  mainWindow.setSize(430, 360);
   mainWindow.show();
   mainWindow.webContents.send("settings:open");
+}
+
+async function closeSettings(): Promise<void> {
+  if (!mainWindow) {
+    return;
+  }
+  const settings = await settingsService.read();
+  applyWindowMode(settings.compactMode);
 }
 
 let saveBoundsTimer: NodeJS.Timeout | null = null;
@@ -160,14 +171,28 @@ function applyWindowMode(compactMode: boolean): void {
   }
 }
 
+function applyClickThrough(clickThrough: boolean): void {
+  if (!mainWindow) {
+    return;
+  }
+  if (clickThrough) {
+    mainWindow.setAlwaysOnTop(true, "screen-saver");
+    mainWindow.setIgnoreMouseEvents(true, { forward: true });
+  } else {
+    mainWindow.setIgnoreMouseEvents(false);
+  }
+}
+
 function registerIpc(): void {
   ipcMain.handle("settings:read", async () => settingsService.read());
   ipcMain.handle("settings:open", async () => openSettings());
+  ipcMain.handle("settings:close", async () => closeSettings());
   ipcMain.handle("settings:save", async (_event, settings: Settings) => {
     const saved = await settingsService.save(settings);
     if (mainWindow) {
       mainWindow.setAlwaysOnTop(saved.alwaysOnTop, "floating");
       applyWindowMode(saved.compactMode);
+      applyClickThrough(saved.clickThrough);
     }
     await snapshotService.restartTimer();
     void snapshotService.refresh();
@@ -189,6 +214,22 @@ function registerIpc(): void {
     const updated = await settingsService.save({ ...current, compactMode: !current.compactMode });
     applyWindowMode(updated.compactMode);
     return updated.compactMode;
+  });
+  ipcMain.handle("window:toggle-click-through", async () => {
+    const current = await settingsService.read();
+    const updated = await settingsService.save({ ...current, clickThrough: !current.clickThrough });
+    applyClickThrough(updated.clickThrough);
+    return updated.clickThrough;
+  });
+  ipcMain.handle("window:set-ignore-mouse-events", async (_event, ignore: boolean) => {
+    if (!mainWindow) {
+      return;
+    }
+    if (ignore) {
+      mainWindow.setIgnoreMouseEvents(true, { forward: true });
+    } else {
+      mainWindow.setIgnoreMouseEvents(false);
+    }
   });
   ipcMain.handle("snapshot:read", async () => snapshotService.getSnapshot());
   ipcMain.handle("snapshot:refresh", async () => snapshotService.refresh());
