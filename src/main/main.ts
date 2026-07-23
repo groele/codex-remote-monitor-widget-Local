@@ -21,7 +21,7 @@ async function createWindow(): Promise<void> {
   const bounds = settings.windowBounds ?? { width: 430, height: 360 };
 
   const iconDataUrl =
-    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAa0lEQVR4nGNgGAVIQGBn43964AG1HKcjRh0wKB1ALTD0HcAvrkUWHnUAzR1gcnnmqAPo5wCQZdgwPsfQNREOmANwhQwID58QoBQMXQfgw8RYgg+POmBoOYCaiW9oOYCaiW9oPoAWePA5gJ6OwGr5iAUAjbOQIrOjeawAAAAASUVORK5CYII=";
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAA00lEQVR4nO3UsQ3DMAxEUW2QdNkhtRfMGB4lc3ggZ4AUpkVCJ1L/gGsN3oOh1gghxJjn93Nm6bLDwyHUA6QI6sOlCOqDpQjqQ+UI6iOlAOoD5QiWD8wcAAAYDPB4veUFAIAEANux/xUAAAAAAICVAaJAAJgBwDIQgMoAPY0CAwCAIgDLvwEAALAYQFQBAAAAHcBsAQCAAQDeegd4CwAAAAAAAAAAxAIoAgAAAMQD9CJkAbgc7/kLMtQEUBXBPL4iwu3xlRC6x1dAcI/PChE6nJC6+QE+xMH6wmyfywAAAABJRU5ErkJggg==";
   const appIcon = nativeImage.createFromDataURL(iconDataUrl);
 
   mainWindow = new BrowserWindow({
@@ -34,7 +34,7 @@ async function createWindow(): Promise<void> {
     frame: false,
     transparent: true,
     alwaysOnTop: settings.alwaysOnTop,
-    skipTaskbar: true,
+    skipTaskbar: false,
     resizable: true,
     show: false,
     icon: appIcon,
@@ -87,7 +87,7 @@ function updateTrayToolTip(snapshot: WidgetSnapshot): void {
 
 function createTray(): void {
   const iconDataUrl =
-    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAa0lEQVR4nGNgGAVIQGBn43964AG1HKcjRh0wKB1ALTD0HcAvrkUWHnUAzR1gcnnmqAPo5wCQZdgwPsfQNREOmANwhQwID58QoBQMXQfgw8RYgg+POmBoOYCaiW9oOYCaiW9oPoAWePA5gJ6OwGr5iAUAjbOQIrOjeawAAAAASUVORK5CYII=";
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAA00lEQVR4nO3UsQ3DMAxEUW2QdNkhtRfMGB4lc3ggZ4AUpkVCJ1L/gGsN3oOh1gghxJjn93Nm6bLDwyHUA6QI6sOlCOqDpQjqQ+UI6iOlAOoD5QiWD8wcAAAYDPB4veUFAIAEANux/xUAAAAAAICVAaJAAJgBwDIQgMoAPY0CAwCAIgDLvwEAALAYQFQBAAAAHcBsAQCAAQDeegd4CwAAAAAAAAAAxAIoAgAAAMQD9CJkAbgc7/kLMtQEUBXBPL4iwu3xlRC6x1dAcI/PChE6nJC6+QE+xMH6wmyfywAAAABJRU5ErkJggg==";
   const image = nativeImage.createFromDataURL(iconDataUrl);
   tray = new Tray(image);
   tray.setToolTip("Codex Monitor Widget");
